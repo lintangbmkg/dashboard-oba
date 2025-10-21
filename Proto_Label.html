@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard OBA</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; }
+    /* Navbar */
+    .navbar { 
+      position: fixed; top: 0; left: 0; right: 0;
+      background: #000B58; color: #FDEB9E;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 20px; z-index: 1000;
+    }
+    .navbar .links a { color:white; margin-right:15px; text-decoration:none; cursor:pointer; }
+    .navbar .links a.active { font-weight:bold; text-decoration:underline; }
+    /* Halaman */
+    .page { display:none; padding:10px; margin-top:55px; }
+    .page.active { display:block; }
+    /* Peta */
+    #map {
+  height: 80VH; /* otomatis penuh layar kecuali area navbar */
+  width: 100%;
+}
+
+    .gform-link {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background-color: #0057b4;
+      color: white(255, 255, 255);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.2s;
+      z-index: 1000;
+    }
+    .gform-link:hover {
+      background-color: #0057b4;
+    }
+ 
+    /* Checkbox filter */
+    .checkbox-group {
+      position: absolute; top: 100px; right: 20px;
+      background: white; padding: 8px; border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 1001;
+      font-size: 14px;
+    }
+    /* Label tooltip */
+    .station-label {
+      font-size: 11px;
+      color: #000;
+      background: white;
+      padding: 2px 6px;
+      border: none;
+      box-shadow: none;
+    }
+    /* Tabel */
+    table { border-collapse:collapse; width:100%; font-size:14px; }
+    th, td { border:1px solid #ccc; padding:6px; text-align:center; }
+    th { background:#f2f2f2; }
+
+    .table-wrapper {
+  max-height: 500px; /* tinggi area scroll, bisa kamu ubah */
+  overflow-y: auto; /* biar bisa discroll vertikal */
+  border: 1px solid #7e7e7e;
+}
+
+.table-wrapper thead th {
+  position: sticky;
+  top: 0;
+  background: #a6c8ff; /* warna latar belakang biar ga ketutupan */
+  z-index: 2;
+}
+
+
+     /* Legend */
+    .legend {
+      background: white;
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 18px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .legend h4 {
+      margin: 0 0 5px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .legend i {
+      width: 14px;
+      height: 14px;
+      float: left;
+      margin-right: 6px;
+      opacity: 0.8;
+    }
+
+    /* Kolom ke-3 (Stasiun) rata kiri */
+table td:nth-child(3) {
+  text-align: left;
+  padding-left: 8px; /* optional biar agak renggang dari border */
+}
+
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="links">
+      <a id="linkMap" class="active">🌍 Peta</a> 
+      <a id="linkData">📊 Tabel Data</a>
+      <a href="https://forms.gle/KjUSwAp6DjGzHYE86" target="_blank" class="gform-link">📝 Update Data Stasiun</a>
+    </div>
+  </div>
+
+  <!-- Halaman Peta -->
+  <div id="pageMap" class="page active">
+    <h3>Sebaran Kondisi Peralatan Pengamatan Udara Atas UPT</h3>
+
+
+    <div id="map"></div>
+    <!-- Checkbox filter balai -->
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="balaiI" checked> Balai I </label><br>
+      <label><input type="checkbox" id="balaiII" checked> Balai II </label><br>
+      <label><input type="checkbox" id="balaiIII" checked> Balai III </label><br>
+      <label><input type="checkbox" id="balaiIV" checked> Balai IV </label><br>
+      <label><input type="checkbox" id="balaiV" checked> Balai V </label>
+    </div>
+  </div>
+
+  <!-- Halaman Data -->
+<div id="pageData" class="page">
+  <h4>Tabel Data Peralatan Observasi Udara Atas UPT</h4>
+
+  <!-- Tambahkan wrapper di sekitar tabel -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nomor Stasiun</th>
+          <th>Stasiun</th>
+          <th>Theodolite Baik</th>
+          <th>Theodolite Rusak</th>
+          <th>Theodolite Rusak Berat</th>
+          <th>Ground Equipment Baik</th>
+          <th>Ground Equipment Rusak</th>
+          <th>Ground Equipment Rusak Berat</th>
+          <th>Tabung Gas Baik</th>
+          <th>Tabung Gas Rusak</th>
+          <th>Tabung Gas Rusak Berat</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+
+  <!-- Script -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    // --- Navigasi ---
+    const linkMap=document.getElementById("linkMap"),
+          linkData=document.getElementById("linkData"),
+          pageMap=document.getElementById("pageMap"),
+          pageData=document.getElementById("pageData");
+    function showPage(link,page){
+      [linkMap,linkData].forEach(l=>l.classList.remove("active"));
+      [pageMap,pageData].forEach(p=>p.classList.remove("active"));
+      link.classList.add("active"); page.classList.add("active");
+    }
+    linkMap.onclick=()=>showPage(linkMap,pageMap);
+    linkData.onclick=()=>showPage(linkData,pageData);
+
+    // --- Peta ---
+    const map = L.map("map").setView([-2.5,118],5);
+    L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    const balaiLayers={I:L.layerGroup().addTo(map),II:L.layerGroup().addTo(map),
+                       III:L.layerGroup().addTo(map),IV:L.layerGroup().addTo(map),
+                       V:L.layerGroup().addTo(map)};
+    const balaiColors={I:"blue",II:"blue",III:"blue",IV:"blue",V:"blue"};
+
+    // --- Fungsi Helper icon ---
+    function repeatIcon(value, color) {
+      let icon = "";
+      if (color === "green") icon = "🟢";
+      if (color === "yellow") icon = "🟡";
+      if (color === "red") icon = "🔴";
+      const n = parseInt(value) || 0;
+      return icon.repeat(n);
+    }
+
+    // --- Ambil data CSV ---
+    const csvURL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTRQ49PvuPoXJpEFiIt2nZ5lmQoiKB6TyVegg2tayy3uGTjNDtrsH3UgDdZCZ5IZoLiIrS3QAYDdJud/pub?gid=1559156266&single=true&output=csv";
+
+    fetch(csvURL)
+      .then(res => res.text())
+      .then(csv => {
+        const data = Papa.parse(csv, { header: true }).data.filter(st => st.LAT && st.LON);
+        const tableBody = document.getElementById("tableBody");
+
+        data.forEach((st, idx) => {
+          const lat = parseFloat(st.LAT);
+          const lon = parseFloat(st.LON);
+          const balai = (st.Balai || "I").trim();
+
+          function renderCategory(values, colors) {
+          // cek apakah semua kosong
+          const allEmpty = values.every(v => !v || v.trim() === "");
+          if (allEmpty) return "?";
+          
+          // kalau ada data, render sesuai repeatIcon
+          return values.map((v, i) => safeRepeatIcon(v, colors[i])).join(" ");
+        }
+
+        function safeRepeatIcon(value, color) {
+          if (!value || value.trim() === "") {
+            return "";
+          }
+          return repeatIcon(value, color);
+        }
+
+        const popupContent = `
+  <b>${st.ID_Stasiun}</b><br>  
+  <b>${st.Stasiun}</b><br>
+
+  ${renderSection("Theodolite", [st.TB, st.TR, st.TRB], ["Baik", "Rusak", "Rusak Berat"], [st.t_TB, st.t_TR, st.t_TRB])}
+  ${renderSection("Tabung Gas", [st.TGB, st.TGR, st.TGRB], ["Baik", "Rusak", "Rusak Berat"], [st.t_TGB, st.t_TGR, st.t_TGRB])}
+  ${renderSection("Ground Equipment", [st.GEB, st.GER, st.GERB], ["Baik", "Rusak", "Rusak Berat"], [st.t_GEB, st.t_GER, st.t_GERB])}
+`;
+
+// Fungsi bantu agar tampil dinamis
+function renderSection(title, kondisiArr, labelArr, tahunArr) {
+  const status = renderCategory(kondisiArr, ["green", "yellow", "red"]);
+
+  // Cek apakah semua kondisi kosong atau tanda '?'
+  const allEmpty = kondisiArr.every(k => !k || k.trim() === "?" || k.trim() === "");
+  if (allEmpty) {
+    return `${title}: ?<br><br>`;
+  }
+
+  // Cari tahun yang terisi
+  let tahunTampil = "";
+  for (let i = 0; i < labelArr.length; i++) {
+    if (tahunArr[i] && tahunArr[i].trim() !== "") {
+      tahunTampil += `Tahun Pengadaan ${title} ${labelArr[i]}: ${tahunArr[i]}<br>`;
+    }
+  }
+
+  return `${title}: ${status}<br>${tahunTampil ? tahunTampil + "<br>" : ""}`;
+}
+
+
+
+
+
+          // Marker per Balai
+          const marker = L.circleMarker([lat, lon], {
+            radius: 6,
+            color: balaiColors[balai] || "gray",
+            fillColor: balaiColors[balai] || "gray",
+            fillOpacity: 0.7
+          }).bindPopup(popupContent)
+            .addTo(balaiLayers[balai]);
+
+          // Tooltip (label)
+          marker.bindTooltip(st.Label, {
+            permanent: true,
+            direction: "right",
+            offset: [3, 0],
+            className: "station-label",
+            interactive: true
+          });
+
+          // Klik label/marker buka popup
+          marker.on("click", () => marker.openPopup());
+
+          // Tambah ke tabel
+          tableBody.insertAdjacentHTML("beforeend",
+            "<tr>" +
+              "<td>" + (idx + 1) + "</td>" +
+              "<td>" + st.ID_Stasiun + "</td>" +
+              "<td>" + st.Stasiun + "</td>" +
+              "<td>" + st.TB + "</td>" +
+              "<td>" + st.TR + "</td>" +
+              "<td>" + st.TRB + "</td>" +
+              "<td>" + st.GEB + "</td>" +
+              "<td>" + st.GER + "</td>" +
+              "<td>" + st.GERB + "</td>" +
+              "<td>" + st.TGB + "</td>" +
+              "<td>" + st.TGR + "</td>" +
+              "<td>" + st.TGRB + "</td>" +
+            "</tr>"
+          );
+        });
+      });
+
+      // --- Legend Kondisi Peralatan ---
+    var legend = L.control({ position: "bottomleft" });
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create("div", "info legend");
+  var categories = [
+    { label: "Baik", icon: "🟢" },
+    { label: "Rusak", icon: "🟡" },
+    { label: "Rusak Berat", icon: "🔴" },
+    { label: "Tidak ada data di web aviation", icon: "? :"}
+  ];
+
+  categories.forEach(function (cat) {
+    div.innerHTML += cat.icon + " " + cat.label + "<br>";
+  });
+
+  return div;
+};
+
+legend.addTo(map);
+
+    // --- Checkbox filter ---
+    document.getElementById("balaiI").addEventListener("change", e => {
+      e.target.checked ? map.addLayer(balaiLayers.I) : map.removeLayer(balaiLayers.I);
+    });
+    document.getElementById("balaiII").addEventListener("change", e => {
+      e.target.checked ? map.addLayer(balaiLayers.II) : map.removeLayer(balaiLayers.II);
+    });
+    document.getElementById("balaiIII").addEventListener("change", e => {
+      e.target.checked ? map.addLayer(balaiLayers.III) : map.removeLayer(balaiLayers.III);
+    });
+    document.getElementById("balaiIV").addEventListener("change", e => {
+      e.target.checked ? map.addLayer(balaiLayers.IV) : map.removeLayer(balaiLayers.IV);
+    });
+    document.getElementById("balaiV").addEventListener("change", e => {
+      e.target.checked ? map.addLayer(balaiLayers.V) : map.removeLayer(balaiLayers.V);
+    });
+  </script>
+</body>
+</html>
