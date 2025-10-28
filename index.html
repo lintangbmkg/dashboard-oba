@@ -442,7 +442,7 @@ const kondisiList = [
   st.TRB, st.DKT, st.KR, st.KTG, st.JTG, st.DKTG
 ].map(v => (v || "").toLowerCase());
 
-if (kondisiList.some(k => k.includes("rusak berat"))) {
+if (kondisiList.some(k => k.includes("Rusak Berat"))) {
   markerColor = "red";
 }
 
@@ -574,3 +574,4 @@ const marker = L.circleMarker([lat, lon], {
   </script>
 </body>
 </html>
+
