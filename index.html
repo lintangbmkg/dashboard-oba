@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard OBA</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
   <style>
     body { margin:0; font-family: Arial, sans-serif; }
-    /* Navbar */
     .navbar { 
       position: fixed; top: 0; left: 0; right: 0;
       background: #000B58; color: #FDEB9E;
@@ -15,21 +16,15 @@
     }
     .navbar .links a { color:white; margin-right:15px; text-decoration:none; cursor:pointer; }
     .navbar .links a.active { font-weight:bold; text-decoration:underline; }
-    /* Halaman */
     .page { display:none; padding:10px; margin-top:55px; }
     .page.active { display:block; }
-    /* Peta */
-    #map {
-  height: 80VH; /* otomatis penuh layar kecuali area navbar */
-  width: 100%;
-}
-
+    #map { position: relative; height: 80vh; width: 100%; }
     .gform-link {
       position: fixed;
       top: 15px;
       right: 20px;
       background-color: #0057b4;
-      color: white(255, 255, 255);
+      color: white;
       text-decoration: none;
       font-weight: 600;
       padding: 8px 14px;
@@ -38,11 +33,6 @@
       transition: background-color 0.2s;
       z-index: 1000;
     }
-    .gform-link:hover {
-      background-color: #0057b4;
-    }
- 
-    /* Checkbox filter */
     .checkbox-group {
       position: absolute; top: 100px; right: 20px;
       background: white; padding: 8px; border-radius: 6px;
@@ -50,35 +40,42 @@
       z-index: 1001;
       font-size: 14px;
     }
-    /* Label tooltip */
     .station-label {
-      font-size: 11px;
+      font-size: 12px;
       color: #000;
       background: white;
       padding: 2px 6px;
       border: none;
       box-shadow: none;
     }
-    /* Tabel */
     table { border-collapse:collapse; width:100%; font-size:14px; }
     th, td { border:1px solid #ccc; padding:6px; text-align:center; }
-    th { background:#f2f2f2; }
-
-    .table-wrapper {
-  max-height: 500px; /* tinggi area scroll, bisa kamu ubah */
-  overflow-y: auto; /* biar bisa discroll vertikal */
-  border: 1px solid #7e7e7e;
-}
-
-.table-wrapper thead th {
-  position: sticky;
-  top: 0;
-  background: #a6c8ff; /* warna latar belakang biar ga ketutupan */
-  z-index: 2;
-}
-
-
-     /* Legend */
+    th {
+      background: #acdaff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+    table td:nth-child(3) { text-align: left; padding-left: 8px; }
+    .info-side-popup {
+      position: absolute;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      padding: 10px;
+      font-size: 13px;
+      width: 250px;
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 10000;
+      display: none;
+      animation: slideIn 0.2s ease-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
     .legend {
       background: white;
       padding: 8px 12px;
@@ -87,265 +84,394 @@
       border-radius: 5px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-    .legend h4 {
-      margin: 0 0 5px;
-      font-size: 14px;
-      font-weight: bold;
+    .pengadaan-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
     }
-    .legend i {
-      width: 14px;
-      height: 14px;
-      float: left;
-      margin-right: 6px;
-      opacity: 0.8;
+    .pengadaan-table {
+      width: 48%;
     }
-
-    /* Kolom ke-3 (Stasiun) rata kiri */
-table td:nth-child(3) {
-  text-align: left;
-  padding-left: 8px; /* optional biar agak renggang dari border */
-}
-
   </style>
 </head>
-
 <body>
-  <!-- Navbar -->
   <div class="navbar">
     <div class="links">
       <a id="linkMap" class="active">🌍 Peta</a> 
       <a id="linkData">📊 Tabel Data</a>
+      <a id="linkPengadaan">📦 Pengadaan</a>
       <a href="https://forms.gle/KjUSwAp6DjGzHYE86" target="_blank" class="gform-link">📝 Update Data Stasiun</a>
     </div>
   </div>
 
-  <!-- Halaman Peta -->
   <div id="pageMap" class="page active">
     <h3>Sebaran Kondisi Peralatan Pengamatan Udara Atas UPT</h3>
-
-
     <div id="map"></div>
-    <!-- Checkbox filter balai -->
-    <div class="checkbox-group">
-      <label><input type="checkbox" id="balaiI" checked> Balai I </label><br>
-      <label><input type="checkbox" id="balaiII" checked> Balai II </label><br>
-      <label><input type="checkbox" id="balaiIII" checked> Balai III </label><br>
-      <label><input type="checkbox" id="balaiIV" checked> Balai IV </label><br>
-      <label><input type="checkbox" id="balaiV" checked> Balai V </label>
+    <div id="infoSidePopup" class="info-side-popup"></div>
+  </div>
+
+  <div class="checkbox-group">
+    <label><input type="checkbox" id="balaiI" checked> Balai I </label><br>
+    <label><input type="checkbox" id="balaiII" checked> Balai II </label><br>
+    <label><input type="checkbox" id="balaiIII" checked> Balai III </label><br>
+    <label><input type="checkbox" id="balaiIV" checked> Balai IV </label><br>
+    <label><input type="checkbox" id="balaiV" checked> Balai V </label>
+  </div>
+
+  <div id="pageData" class="page">
+    <h4>Tabel Data Peralatan Observasi Udara Atas UPT</h4>
+    <div style="max-height: 70vh; overflow-y: auto; overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th><th>Nomor Stasiun</th><th>Stasiun</th>
+            <th>Theodolite Baik</th><th>Theodolite Rusak Ringan</th><th>Theodolite Rusak Berat</th>
+            <th>Kerusakan Theodolite</th><th>Kondisi Receiver</th><th>Kondisi Tabung Gas</th>
+            <th>Jenis Tabung Gas</th><th>Kerusakan Tabung Gas</th><th>Kendala Lainnya</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Halaman Data -->
-<div id="pageData" class="page">
-  <h4>Tabel Data Peralatan Observasi Udara Atas UPT</h4>
-
-  <!-- Tambahkan wrapper di sekitar tabel -->
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Nomor Stasiun</th>
-          <th>Stasiun</th>
-          <th>Theodolite Baik</th>
-          <th>Theodolite Rusak</th>
-          <th>Theodolite Rusak Berat</th>
-          <th>Ground Equipment Baik</th>
-          <th>Ground Equipment Rusak</th>
-          <th>Ground Equipment Rusak Berat</th>
-          <th>Tabung Gas Baik</th>
-          <th>Tabung Gas Rusak</th>
-          <th>Tabung Gas Rusak Berat</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <div id="pagePengadaan" class="page">
+    <h3>📦 Daftar Stasiun Penerima Pengadaan Alat</h3>
+    <div class="pengadaan-container">
+      <div class="pengadaan-table">
+        <h4>Pengadaan Tahun 2025</h4>
+        <table>
+          <thead><tr><th>Theodolite</th><th>Tabung Gas</th></tr></thead>
+          <tbody id="pengadaan2025"></tbody>
+        </table>
+      </div>
+      <div class="pengadaan-table">
+        <h4>Pengadaan Tahun 2026</h4>
+        <table>
+          <thead><tr><th>Theodolite</th><th>Tabung Gas</th></tr></thead>
+          <tbody id="pengadaan2026"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
 
-
-  <!-- Script -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
   <script>
-    // --- Navigasi ---
-    const linkMap=document.getElementById("linkMap"),
-          linkData=document.getElementById("linkData"),
-          pageMap=document.getElementById("pageMap"),
-          pageData=document.getElementById("pageData");
-    function showPage(link,page){
-      [linkMap,linkData].forEach(l=>l.classList.remove("active"));
-      [pageMap,pageData].forEach(p=>p.classList.remove("active"));
-      link.classList.add("active"); page.classList.add("active");
-    }
-    linkMap.onclick=()=>showPage(linkMap,pageMap);
-    linkData.onclick=()=>showPage(linkData,pageData);
+  // === NAVIGATION ===
+  const linkMap = document.getElementById("linkMap"),
+        linkData = document.getElementById("linkData"),
+        linkPengadaan = document.getElementById("linkPengadaan"),
+        pageMap = document.getElementById("pageMap"),
+        pageData = document.getElementById("pageData"),
+        pagePengadaan = document.getElementById("pagePengadaan");
 
-    // --- Peta ---
-    const map = L.map("map").setView([-2.5,118],5);
-    L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
-
-    const balaiLayers={I:L.layerGroup().addTo(map),II:L.layerGroup().addTo(map),
-                       III:L.layerGroup().addTo(map),IV:L.layerGroup().addTo(map),
-                       V:L.layerGroup().addTo(map)};
-    const balaiColors={I:"blue",II:"blue",III:"blue",IV:"blue",V:"blue"};
-
-    // --- Fungsi Helper icon ---
-    function repeatIcon(value, color) {
-      let icon = "";
-      if (color === "green") icon = "🟢";
-      if (color === "yellow") icon = "🟡";
-      if (color === "red") icon = "🔴";
-      const n = parseInt(value) || 0;
-      return icon.repeat(n);
-    }
-
-    // --- Ambil data CSV ---
-    const csvURL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTRQ49PvuPoXJpEFiIt2nZ5lmQoiKB6TyVegg2tayy3uGTjNDtrsH3UgDdZCZ5IZoLiIrS3QAYDdJud/pub?gid=1559156266&single=true&output=csv";
-
-    fetch(csvURL)
-      .then(res => res.text())
-      .then(csv => {
-        const data = Papa.parse(csv, { header: true }).data.filter(st => st.LAT && st.LON);
-        const tableBody = document.getElementById("tableBody");
-
-        data.forEach((st, idx) => {
-          const lat = parseFloat(st.LAT);
-          const lon = parseFloat(st.LON);
-          const balai = (st.Balai || "I").trim();
-
-          function renderCategory(values, colors) {
-          // cek apakah semua kosong
-          const allEmpty = values.every(v => !v || v.trim() === "");
-          if (allEmpty) return "?";
-          
-          // kalau ada data, render sesuai repeatIcon
-          return values.map((v, i) => safeRepeatIcon(v, colors[i])).join(" ");
-        }
-
-        function safeRepeatIcon(value, color) {
-          if (!value || value.trim() === "") {
-            return "";
-          }
-          return repeatIcon(value, color);
-        }
-
-        const popupContent = `
-  <b>${st.ID_Stasiun}</b><br>  
-  <b>${st.Stasiun}</b><br>
-
-  ${renderSection("Theodolite", [st.TB, st.TR, st.TRB], ["Baik", "Rusak", "Rusak Berat"], [st.t_TB, st.t_TR, st.t_TRB])}
-  ${renderSection("Tabung Gas", [st.TGB, st.TGR, st.TGRB], ["Baik", "Rusak", "Rusak Berat"], [st.t_TGB, st.t_TGR, st.t_TGRB])}
-  ${renderSection("Ground Equipment", [st.GEB, st.GER, st.GERB], ["Baik", "Rusak", "Rusak Berat"], [st.t_GEB, st.t_GER, st.t_GERB])}
-`;
-
-// Fungsi bantu agar tampil dinamis
-function renderSection(title, kondisiArr, labelArr, tahunArr) {
-  const status = renderCategory(kondisiArr, ["green", "yellow", "red"]);
-
-  // Cek apakah semua kondisi kosong atau tanda '?'
-  const allEmpty = kondisiArr.every(k => !k || k.trim() === "?" || k.trim() === "");
-  if (allEmpty) {
-    return `${title}: ?<br><br>`;
+  function showPage(link, page) {
+    [linkMap, linkData, linkPengadaan].forEach(l => l.classList.remove("active"));
+    [pageMap, pageData, pagePengadaan].forEach(p => p.classList.remove("active"));
+    link.classList.add("active");
+    page.classList.add("active");
   }
 
-  // Cari tahun yang terisi
-  let tahunTampil = "";
-  for (let i = 0; i < labelArr.length; i++) {
-    if (tahunArr[i] && tahunArr[i].trim() !== "") {
-      tahunTampil += `Tahun Pengadaan ${title} ${labelArr[i]}: ${tahunArr[i]}<br>`;
-    }
-  }
+  linkMap.onclick = () => showPage(linkMap, pageMap);
+  linkData.onclick = () => showPage(linkData, pageData);
+  linkPengadaan.onclick = () => showPage(linkPengadaan, pagePengadaan);
 
-  return `${title}: ${status}<br>${tahunTampil ? tahunTampil + "<br>" : ""}`;
+  // === kontrol visibilitas checkbox balai ===
+function toggleCheckboxVisibility(show) {
+  document.querySelectorAll(".checkbox-group").forEach(el => {
+    el.style.display = show ? "block" : "none";
+  });
+}
+
+// tampilkan hanya di page peta
+linkMap.addEventListener("click", () => {
+  toggleCheckboxVisibility(true);
+});
+
+linkData.addEventListener("click", () => {
+  toggleCheckboxVisibility(false);
+});
+
+linkPengadaan.addEventListener("click", () => {
+  toggleCheckboxVisibility(false);
+});
+
+  // === MAP SETUP ===
+  const map = L.map("map", {
+    fullscreenControl: true,
+    fullscreenControlOptions: { position: 'topleft' }
+  }).setView([-2.5,118],5);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '&copy; Esri, HERE, Garmin, FAO, NOAA, USGS'
+  }).addTo(map);
+
+  const balaiLayers={I:L.layerGroup().addTo(map),II:L.layerGroup().addTo(map),
+                     III:L.layerGroup().addTo(map),IV:L.layerGroup().addTo(map),
+                     V:L.layerGroup().addTo(map)};
+  
+  // --- make popup & checkbox visible in fullscreen ---
+// ambil elemen checkbox-group dan infoSidePopup
+const checkboxGroupEl = document.querySelector(".checkbox-group");
+const checkboxOriginalParent = checkboxGroupEl ? checkboxGroupEl.parentNode : null;
+const infoSidePopupEl = document.getElementById("infoSidePopup");
+
+// pastikan infoSidePopup menjadi child peta (agar terlihat di fullscreen)
+const mapContainer = map.getContainer();
+if (infoSidePopupEl && !mapContainer.contains(infoSidePopupEl)) {
+  mapContainer.appendChild(infoSidePopupEl);
+}
+
+// simpan posisi awal checkbox (agar bisa dikembalikan setelah fullscreen)
+const checkboxOriginalStyle = {
+  position: checkboxGroupEl?.style.position,
+  top: checkboxGroupEl?.style.top,
+  right: checkboxGroupEl?.style.right,
+  zIndex: checkboxGroupEl?.style.zIndex
+};
+
+// helper: pindah checkbox ke dalam container peta (agar muncul saat fullscreen)
+function moveCheckboxIntoMap() {
+  if (!checkboxGroupEl) return;
+  if (!mapContainer.contains(checkboxGroupEl)) {
+    mapContainer.appendChild(checkboxGroupEl);
+  }
+  checkboxGroupEl.style.position = "absolute";
+  checkboxGroupEl.style.top = "100px";
+  checkboxGroupEl.style.right = "20px";
+  checkboxGroupEl.style.zIndex = 1001;
+}
+
+// helper: kembalikan checkbox ke parent aslinya
+function moveCheckboxOutOfMap() {
+  if (!checkboxGroupEl || !checkboxOriginalParent) return;
+  if (!checkboxOriginalParent.contains(checkboxGroupEl)) {
+    checkboxOriginalParent.appendChild(checkboxGroupEl);
+  }
+  // kembalikan gaya posisi ke semula
+  checkboxGroupEl.style.position = checkboxOriginalStyle.position || "absolute";
+  checkboxGroupEl.style.top = checkboxOriginalStyle.top || "20px";
+  checkboxGroupEl.style.right = checkboxOriginalStyle.right || "20px";
+  checkboxGroupEl.style.zIndex = checkboxOriginalStyle.zIndex || 1001;
+}
+
+// event dari leaflet.fullscreen: enterFullscreen / exitFullscreen
+map.on && map.on('enterFullscreen', () => {
+  moveCheckboxIntoMap();
+  if (infoSidePopupEl && !mapContainer.contains(infoSidePopupEl)) {
+    mapContainer.appendChild(infoSidePopupEl);
+  }
+});
+
+map.on && map.on('exitFullscreen', () => {
+  moveCheckboxOutOfMap();
+});
+
+
+
+  const csvURL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTRQ49PvuPoXJpEFiIt2nZ5lmQoiKB6TyVegg2tayy3uGTjNDtrsH3UgDdZCZ5IZoLiIrS3QAYDdJud/pub?gid=1559156266&single=true&output=csv";
+
+  fetch(csvURL).then(r=>r.text()).then(t=>{
+    const data=Papa.parse(t,{header:true}).data.filter(st=>st.LAT && st.LON);
+    const tableBody = document.getElementById("tableBody");
+
+    // === PENGADAAN 2025 & 2026 ===
+    const pengadaan2025 = document.getElementById("pengadaan2025");
+    const pengadaan2026 = document.getElementById("pengadaan2026");
+
+    data.forEach(st=>{
+      if(st.T25 || st.TG25){
+        pengadaan2025.insertAdjacentHTML("beforeend",
+          `<tr><td>${st.T25||""}</td><td>${st.TG25||""}</td></tr>`);
+      }
+      if(st.T26 || st.TG26){
+        pengadaan2026.insertAdjacentHTML("beforeend",
+          `<tr><td>${st.T26||""}</td><td>${st.TG26||""}</td></tr>`);
+      }
+    });
+
+    // === MARKER, LABEL, TABEL DATA (TETAP SAMA) ===
+    data.forEach((st, idx)=>{
+      const lat=+st.LAT, lon=+st.LON, balai=(st.Balai||"I").trim();
+      let html=`<b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><br><br>`;
+      const tParts=[];
+
+      if(st.TB && st.TB!=="0")tParts.push(`${st.TB}🟢`);
+      if(st.TR && st.TR!=="0")tParts.push(`${st.TR}🟡`);
+      if(st.TRB && st.TRB!=="0")tParts.push(`${st.TRB}🔴`);
+
+      if(tParts.length>0){
+        html+=`<b>Theodolite:</b> ${tParts.join(" ")} `;
+        if(st.DKT && st.DKT.trim()!=="")
+          html+=`<a href="#" class="info-link" data-title="Theodolite" data-text="${st.DKT.replace(/"/g,"&quot;")}">💬</a>`;
+        html+=`<br>`;
+      }
+
+      if(st.KTG && st.KTG.trim()!==""){
+        let icon="❓"; const kt=st.KTG.toLowerCase();
+        if(kt.includes("baik"))icon="🟢";
+        else if(kt.includes("berat"))icon="🔴";
+        else if(kt.includes("rusak"))icon="🟡";
+        html+=`<b>Tabung Gas:</b> ${icon}`;
+        const d=[st.JTG,st.DKTG].filter(Boolean).join("; ");
+        if(d!=="")html+=` <a href="#" class="info-link" data-title="Tabung Gas" data-text="${d.replace(/"/g,"&quot;")}">💬</a>`;
+        html+=`<br>`;
+      }
+
+      if(st.KR && st.KR.trim()!==""){
+        let icon="❓"; const kr=st.KR.toLowerCase();
+        if(kr.includes("baik"))icon="🟩";
+        else if(kr.includes("berat"))icon="🟥";
+        else if(kr.includes("rusak ringan"))icon="🟨";
+        html+=`<b>Receiver:</b> ${icon}`;
+        if(st.DKR && st.DKR.trim()!==""){
+          html+=` <a href="#" class="info-link" data-title="Receiver" data-text="${st.DKR.replace(/"/g,"&quot;")}">💬</a>`;
+        }
+        html+=`<br>`;
+      }
+
+      if(st.kendala && st.kendala.trim()!==""){
+        html+=`<hr><a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫Kendala</a>`;
+      }
+
+      // === tentukan warna marker ===
+let markerColor = "#000B58"; // default
+const kondisiList = [
+  st.TRB, st.DKT, st.KR, st.KTG, st.JTG, st.DKTG
+].map(v => (v || "").toLowerCase());
+
+if (kondisiList.some(k => k.includes("rusak berat"))) {
+  markerColor = "red";
+}
+
+// === Marker + Tooltip ===
+const marker = L.circleMarker([lat, lon], {
+  radius: 6, color: markerColor, fillColor: markerColor, fillOpacity: 0.8
+}).bindPopup(html);
+
+
+      if (st.Label) {
+  // cek isi kolom Pengamatan
+  const pengamatan = (st["Pengamatan"] || "").toUpperCase();
+  // kalau "PR" → warna biru muda, kalau tidak biarkan default
+  const labelColor = pengamatan === "PR" ? "blue" : "#000";
+
+  marker.bindTooltip(st.Label, {
+    permanent: true,
+    direction: "top",
+    className: "station-label",
+    interactive: true,
+  });
+
+  // ubah warna teks label lewat DOM setelah tooltip dibuat
+  marker.on("add", () => {
+    const tooltipEl = marker.getTooltip()?.getElement();
+    if (tooltipEl) tooltipEl.style.color = labelColor;
+  });
 }
 
 
+      marker.on("tooltipclick",()=>marker.openPopup());
+      marker.addTo(balaiLayers[balai]);
 
-
-
-          // Marker per Balai
-          const marker = L.circleMarker([lat, lon], {
-            radius: 6,
-            color: balaiColors[balai] || "gray",
-            fillColor: balaiColors[balai] || "gray",
-            fillOpacity: 0.7
-          }).bindPopup(popupContent)
-            .addTo(balaiLayers[balai]);
-
-          // Tooltip (label)
-          marker.bindTooltip(st.Label, {
-            permanent: true,
-            direction: "right",
-            offset: [3, 0],
-            className: "station-label",
-            interactive: true
+      marker.on("popupopen",e=>{
+        const el=e.popup.getElement(); if(!el)return;
+        L.DomEvent.disableClickPropagation(el);
+        el.querySelectorAll(".info-link").forEach(link=>{
+          link.addEventListener("click",ev=>{
+            ev.preventDefault(); showSidePopup(link.dataset.title,link.dataset.text);
           });
-
-          // Klik label/marker buka popup
-          marker.on("click", () => marker.openPopup());
-
-          // Tambah ke tabel
-          tableBody.insertAdjacentHTML("beforeend",
-            "<tr>" +
-              "<td>" + (idx + 1) + "</td>" +
-              "<td>" + st.ID_Stasiun + "</td>" +
-              "<td>" + st.Stasiun + "</td>" +
-              "<td>" + st.TB + "</td>" +
-              "<td>" + st.TR + "</td>" +
-              "<td>" + st.TRB + "</td>" +
-              "<td>" + st.GEB + "</td>" +
-              "<td>" + st.GER + "</td>" +
-              "<td>" + st.GERB + "</td>" +
-              "<td>" + st.TGB + "</td>" +
-              "<td>" + st.TGR + "</td>" +
-              "<td>" + st.TGRB + "</td>" +
-            "</tr>"
-          );
+        });
+        el.querySelectorAll(".kendala-link").forEach(link=>{
+          link.addEventListener("click",ev=>{
+            ev.preventDefault(); showSidePopup("Kendala",link.dataset.text);
+          });
         });
       });
 
-      // --- Legend Kondisi Peralatan ---
-    var legend = L.control({ position: "bottomleft" });
-
-legend.onAdd = function (map) {
-  var div = L.DomUtil.create("div", "info legend");
-  var categories = [
-    { label: "Baik", icon: "🟢" },
-    { label: "Rusak", icon: "🟡" },
-    { label: "Rusak Berat", icon: "🔴" },
-    { label: "Tidak ada data di web aviation", icon: "? :"}
-  ];
-
-  categories.forEach(function (cat) {
-    div.innerHTML += cat.icon + " " + cat.label + "<br>";
+      tableBody.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>${idx+1}</td>
+          <td>${st.ID_Stasiun||""}</td>
+          <td>${st.Stasiun||""}</td>
+          <td>${st.TB||""}</td>
+          <td>${st.TR||""}</td>
+          <td>${st.TRB||""}</td>
+          <td>${st.DKT||""}</td>
+          <td>${st.KR||""}</td>
+          <td>${st.KTG||""}</td>
+          <td>${st.JTG||""}</td>
+          <td>${st.DKTG||""}</td>
+          <td>${st.kendala||""}</td>
+        </tr>`);
+    });
   });
 
-  return div;
-};
+  function showSidePopup(title, text) {
+  const box = document.getElementById("infoSidePopup");
+  if (!box) return;
 
-legend.addTo(map);
+  box.innerHTML = `
+    <b>${title}</b><hr>
+    <div style="white-space: pre-wrap;">${text}</div>
+    <hr>
+    <button onclick="closeSidePopup()" style="
+      width:100%;padding:5px;background:#0057b4;color:white;border:none;border-radius:5px;">OK</button>
+  `;
+  box.style.display = "block";
 
-    // --- Checkbox filter ---
-    document.getElementById("balaiI").addEventListener("change", e => {
-      e.target.checked ? map.addLayer(balaiLayers.I) : map.removeLayer(balaiLayers.I);
-    });
-    document.getElementById("balaiII").addEventListener("change", e => {
-      e.target.checked ? map.addLayer(balaiLayers.II) : map.removeLayer(balaiLayers.II);
-    });
-    document.getElementById("balaiIII").addEventListener("change", e => {
-      e.target.checked ? map.addLayer(balaiLayers.III) : map.removeLayer(balaiLayers.III);
-    });
-    document.getElementById("balaiIV").addEventListener("change", e => {
-      e.target.checked ? map.addLayer(balaiLayers.IV) : map.removeLayer(balaiLayers.IV);
-    });
-    document.getElementById("balaiV").addEventListener("change", e => {
-      e.target.checked ? map.addLayer(balaiLayers.V) : map.removeLayer(balaiLayers.V);
-    });
+  // hitung posisi relatif ke container peta supaya bekerja baik di fullscreen
+  const leafletPopup = document.querySelector(".leaflet-popup-content-wrapper");
+  const mapRect = map.getContainer().getBoundingClientRect();
+
+  // default posisi (kanan bawah relatif peta)
+  let left = mapRect.width - box.offsetWidth - 20;
+  let top = mapRect.height - box.offsetHeight - 20;
+
+  if (leafletPopup) {
+    const r = leafletPopup.getBoundingClientRect();
+    // posisikan relatif ke peta: (r.right - mapRect.left) adalah koordinat kanan popup relatif peta
+    left = (r.right - mapRect.left) + 15;
+    top  = (r.top - mapRect.top);
+    // pastikan tidak keluar dari area peta
+    if (left + box.offsetWidth > mapRect.width - 10) left = mapRect.width - box.offsetWidth - 20;
+    if (top + box.offsetHeight > mapRect.height - 10) top = mapRect.height - box.offsetHeight - 20;
+    if (left < 10) left = 10;
+    if (top < 10) top = 10;
+  }
+
+  // karena box sekarang di dalam container peta (position: absolute), atur left/top relatif peta
+  box.style.left = `${left}px`;
+  box.style.top  = `${top}px`;
+}
+
+  function closeSidePopup(){document.getElementById("infoSidePopup").style.display="none";}
+  map.on("click",()=>closeSidePopup());
+  map.on("popupopen",()=>closeSidePopup());
+
+  var legend=L.control({position:"bottomleft"});
+  legend.onAdd=function(map){
+    var div=L.DomUtil.create("div","legend");
+    const items=[
+      {icon:"🟢",label:"Baik"},
+      {icon:"🟡",label:"Rusak Ringan Bisa Digunakan"},
+      {icon:"🔴",label:"Rusak Berat"},
+      {icon:"❓",label:"Tidak ada data"}
+    ];
+    div.innerHTML="<b>Keterangan:</b><br>"+items.map(i=>`${i.icon} ${i.label}`).join("<br>");
+    return div;
+  };
+  legend.addTo(map);
+
+  ["I","II","III","IV","V"].forEach(b=>{
+    const el=document.getElementById("balai"+b);
+    el.onchange=e=>{
+      e.target.checked?map.addLayer(balaiLayers[b]):map.removeLayer(balaiLayers[b]);
+    };
+  });
   </script>
 </body>
 </html>
