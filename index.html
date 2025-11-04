@@ -409,13 +409,18 @@ map.on && map.on('exitFullscreen', () => {
   ];
 
   // === Tambahkan marker ke tiap layer alat ===
-  alatInfo.forEach(info => {
-    const marker = L.circleMarker([lat, lon], {
-      radius: 6,
-      color: info.color,
-      fillColor: info.color,
-      fillOpacity: 0.85,
-    }).bindPopup(info.popup);
+alatInfo.forEach(info => {
+
+  // ⛔️ Jika ini layer ground, batasi hanya untuk baris 2–23 (idx mulai dari 0)
+  if (info.key === "ground" && (idx < 1 || idx > 22)) return;
+
+  const marker = L.circleMarker([lat, lon], {
+    radius: 6,
+    color: info.color,
+    fillColor: info.color,
+    fillOpacity: 0.85,
+  }).bindPopup(info.popup);
+
 
     // Tooltip nama stasiun
     if (st.Label) {
@@ -561,3 +566,4 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
