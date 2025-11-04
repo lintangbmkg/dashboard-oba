@@ -180,16 +180,7 @@ thead th {
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
 
-  /* === Pengadaan Layout === */
-  .pengadaan-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .pengadaan-table {
-    width: 48%;
-  }
+  
 </style>
 
 </head>
@@ -198,7 +189,6 @@ thead th {
     <div class="links">
       <a id="linkMap" class="active">🌍 Peta</a> 
       <a id="linkData">📊 Tabel Data</a>
-      <a id="linkPengadaan">📦 Pengadaan</a>
       <a href="https://forms.gle/KjUSwAp6DjGzHYE86" target="_blank" class="gform-link">📝 Update Data Stasiun</a>
     </div>
   </div>
@@ -210,11 +200,9 @@ thead th {
   </div>
 
   <div class="checkbox-group">
-    <label><input type="checkbox" id="balaiI" checked> Balai I </label><br>
-    <label><input type="checkbox" id="balaiII" checked> Balai II </label><br>
-    <label><input type="checkbox" id="balaiIII" checked> Balai III </label><br>
-    <label><input type="checkbox" id="balaiIV" checked> Balai IV </label><br>
-    <label><input type="checkbox" id="balaiV" checked> Balai V </label>
+    <label><input type="checkbox" id="theodolite" checked> Theodolite </label><br>
+  <label><input type="checkbox" id="tabung" checked> Tabung Gas </label><br>
+  <label><input type="checkbox" id="ground" checked> Ground Equipment </label>
   </div>
 
   <div id="pageData" class="page">
@@ -233,25 +221,6 @@ thead th {
       </table>
     </div>
   </div>
-
-  <div id="pagePengadaan" class="page">
-    <h3>📦 Daftar Stasiun Penerima Pengadaan Alat</h3>
-    <div class="pengadaan-container">
-      <div class="pengadaan-table">
-        <h4>Pengadaan Tahun 2025</h4>
-        <table>
-          <thead><tr><th>Theodolite</th><th>Tabung Gas</th></tr></thead>
-          <tbody id="pengadaan2025"></tbody>
-        </table>
-      </div>
-      <div class="pengadaan-table">
-        <h4>Pengadaan Tahun 2026</h4>
-        <table>
-          <thead><tr><th>Theodolite</th><th>Tabung Gas</th></tr></thead>
-          <tbody id="pengadaan2026"></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -262,21 +231,19 @@ thead th {
   // === NAVIGATION ===
   const linkMap = document.getElementById("linkMap"),
         linkData = document.getElementById("linkData"),
-        linkPengadaan = document.getElementById("linkPengadaan"),
         pageMap = document.getElementById("pageMap"),
-        pageData = document.getElementById("pageData"),
-        pagePengadaan = document.getElementById("pagePengadaan");
+        pageData = document.getElementById("pageData");
 
   function showPage(link, page) {
-    [linkMap, linkData, linkPengadaan].forEach(l => l.classList.remove("active"));
-    [pageMap, pageData, pagePengadaan].forEach(p => p.classList.remove("active"));
+    [linkMap, linkData].forEach(l => l.classList.remove("active"));
+    [pageMap, pageData].forEach(p => p.classList.remove("active"));
     link.classList.add("active");
     page.classList.add("active");
   }
 
   linkMap.onclick = () => showPage(linkMap, pageMap);
   linkData.onclick = () => showPage(linkData, pageData);
-  linkPengadaan.onclick = () => showPage(linkPengadaan, pagePengadaan);
+ 
 
   // === kontrol visibilitas checkbox balai ===
 function toggleCheckboxVisibility(show) {
@@ -294,9 +261,6 @@ linkData.addEventListener("click", () => {
   toggleCheckboxVisibility(false);
 });
 
-linkPengadaan.addEventListener("click", () => {
-  toggleCheckboxVisibility(false);
-});
 
   // === MAP SETUP ===
   const map = L.map("map", {
@@ -308,9 +272,13 @@ linkPengadaan.addEventListener("click", () => {
     attribution: '&copy; Esri, HERE, Garmin, FAO, NOAA, USGS'
   }).addTo(map);
 
-  const balaiLayers={I:L.layerGroup().addTo(map),II:L.layerGroup().addTo(map),
-                     III:L.layerGroup().addTo(map),IV:L.layerGroup().addTo(map),
-                     V:L.layerGroup().addTo(map)};
+  // === Layer per Alat ===
+const alatLayers = {
+  theodolite: L.layerGroup().addTo(map),
+  tabung: L.layerGroup().addTo(map),
+  ground: L.layerGroup().addTo(map),
+};
+
   
   // --- make popup & checkbox visible in fullscreen ---
 // ambil elemen checkbox-group dan infoSidePopup
@@ -377,137 +345,129 @@ map.on && map.on('exitFullscreen', () => {
     const data=Papa.parse(t,{header:true}).data.filter(st=>st.LAT && st.LON);
     const tableBody = document.getElementById("tableBody");
 
-    // === PENGADAAN 2025 & 2026 ===
-    const pengadaan2025 = document.getElementById("pengadaan2025");
-    const pengadaan2026 = document.getElementById("pengadaan2026");
-
-    data.forEach(st=>{
-      if(st.T25 || st.TG25){
-        pengadaan2025.insertAdjacentHTML("beforeend",
-          `<tr><td>${st.T25||""}</td><td>${st.TG25||""}</td></tr>`);
-      }
-      if(st.T26 || st.TG26){
-        pengadaan2026.insertAdjacentHTML("beforeend",
-          `<tr><td>${st.T26||""}</td><td>${st.TG26||""}</td></tr>`);
-      }
-    });
 
     // === MARKER, LABEL, TABEL DATA (TETAP SAMA) ===
-    data.forEach((st, idx)=>{
-      const lat=+st.LAT, lon=+st.LON, balai=(st.Balai||"I").trim();
-      let html=`<b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><br><br>`;
-      const tParts=[];
+    data.forEach((st, idx) => {
+  const lat = +st.LAT, lon = +st.LON;
+  if (!lat || !lon) return;
 
-      if(st.TB && st.TB!=="0")tParts.push(`${st.TB}🟢`);
-      if(st.TR && st.TR!=="0")tParts.push(`${st.TR}🟡`);
-      if(st.TRB && st.TRB!=="0")tParts.push(`${st.TRB}🔴`);
+  // === Tentukan kondisi per alat ===
+  const kondisi = {
+    theodolite: (() => {
+      const baik = +st.TB || 0, ringan = +st.TR || 0, berat = +st.TRB || 0;
+      if (baik > 0) return "baik";
+      if (ringan > 0) return "rusak ringan";
+      if (berat > 0) return "rusak berat";
+      return "tidak ada";
+    })(),
+    tabung: (st.KTG || "").toLowerCase(),
+    ground: (st.KR || "").toLowerCase(),
+  };
 
-      if(tParts.length>0){
-        html+=`<b>Theodolite:</b> ${tParts.join(" ")} `;
-        if(st.DKT && st.DKT.trim()!=="")
-          html+=`<a href="#" class="info-link" data-title="Theodolite" data-text="${st.DKT.replace(/"/g,"&quot;")}">💬</a>`;
-        html+=`<br>`;
-      }
+  // === Fungsi bantu untuk pilih warna marker ===
+  function warnaDariKondisi(k) {
+    if (!k) return "#777";
+    if (k.includes("baik")) return "green";
+    if (k.includes("ringan")) return "orange";
+    if (k.includes("berat")) return "red";
+    return "#777";
+  }
 
-      if(st.KTG && st.KTG.trim()!==""){
-        let icon="❓"; const kt=st.KTG.toLowerCase();
-        if(kt.includes("baik"))icon="🟢";
-        else if(kt.includes("berat"))icon="🔴";
-        else if(kt.includes("rusak"))icon="🟡";
-        html+=`<b>Tabung Gas:</b> ${icon}`;
-        const d=[st.JTG,st.DKTG].filter(Boolean).join("; ");
-        if(d!=="")html+=` <a href="#" class="info-link" data-title="Tabung Gas" data-text="${d.replace(/"/g,"&quot;")}">💬</a>`;
-        html+=`<br>`;
-      }
+  // === Buat marker untuk tiap alat ===
+  const alatInfo = [
+    {
+      key: "theodolite",
+      color: warnaDariKondisi(kondisi.theodolite),
+      popup: `
+        <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
+        <b>Theodolite:</b> ${kondisi.theodolite || "tidak ada data"}<br>
+        ${st.DKT ? `<b>ℹ️</b> ${st.DKT}<br>` : ""}
+        ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
+      `,
+    },
+    {
+      key: "tabung",
+      color: warnaDariKondisi(kondisi.tabung),
+      popup: `
+        <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
+        <b>Tabung Gas:</b> ${st.KTG || "tidak ada data"}<br>
+        ${st.JTG ? `<b>ℹ️:</b> ${st.DKTG}<br>` : ""}
+        ${st.DKTG ? `<b>Jenis:</b> ${st.JTG}<br>` : ""}
+        ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
+      `,
+    },
+    {
+      key: "ground",
+      color: warnaDariKondisi(kondisi.ground),
+      popup: `
+        <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
+        <b>Ground Equipment:</b> ${st.KR || "tidak ada data"}<br>
+        ${st.DKR ? `<b>ℹ️:</b> ${st.DKR}<br>` : ""}
+        ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
+      `,
+    },
+  ];
 
-      if(st.KR && st.KR.trim()!==""){
-        let icon="❓"; const kr=st.KR.toLowerCase();
-        if(kr.includes("baik"))icon="🟩";
-        else if(kr.includes("berat"))icon="🟥";
-        else if(kr.includes("rusak ringan"))icon="🟨";
-        html+=`<b>Receiver:</b> ${icon}`;
-        if(st.DKR && st.DKR.trim()!==""){
-          html+=` <a href="#" class="info-link" data-title="Receiver" data-text="${st.DKR.replace(/"/g,"&quot;")}">💬</a>`;
-        }
-        html+=`<br>`;
-      }
+  // === Tambahkan marker ke tiap layer alat ===
+  alatInfo.forEach(info => {
+    const marker = L.circleMarker([lat, lon], {
+      radius: 6,
+      color: info.color,
+      fillColor: info.color,
+      fillOpacity: 0.85,
+    }).bindPopup(info.popup);
 
-      if(st.kendala && st.kendala.trim()!==""){
-        html+=`<hr><a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫Kendala</a>`;
-      }
+    // Tooltip nama stasiun
+    if (st.Label) {
+      marker.bindTooltip(st.Label, {
+        permanent: true,
+        direction: "right",
+        className: "station-label",
+        interactive: true,
+      });
+    }
 
-      // === tentukan warna marker ===
-let markerColor = "#000B58"; // default
-const kondisiList = [
-  st.TRB, st.DKT, st.KR, st.KTG, st.JTG, st.DKTG
-].map(v => (v || "").toLowerCase());
-
-if (kondisiList.some(k => k.includes("rusak berat"))) {
-  markerColor = "red";
-}
-
-// === Marker + Tooltip ===
-const marker = L.circleMarker([lat, lon], {
-  radius: 6, color: markerColor, fillColor: markerColor, fillOpacity: 0.8
-}).bindPopup(html);
-
-
-      if (st.Label) {
-  // cek isi kolom Pengamatan
-  const pengamatan = (st["Pengamatan"] || "").toUpperCase();
-  // kalau "PR" → warna biru muda, kalau tidak biarkan default
-  const labelColor = pengamatan === "PR" ? "#1061b8" : "#000";
-
-  marker.bindTooltip(st.Label, {
-    permanent: true,
-    direction: "top",
-    className: "station-label",
-    interactive: true,
-  });
-
-  // ubah warna teks label lewat DOM setelah tooltip dibuat
-  marker.on("add", () => {
-    const tooltipEl = marker.getTooltip()?.getElement();
-    if (tooltipEl) tooltipEl.style.color = labelColor;
-  });
-}
-
-
-      marker.on("tooltipclick",()=>marker.openPopup());
-      marker.addTo(balaiLayers[balai]);
-
-      marker.on("popupopen",e=>{
-        const el=e.popup.getElement(); if(!el)return;
-        L.DomEvent.disableClickPropagation(el);
-        el.querySelectorAll(".info-link").forEach(link=>{
-          link.addEventListener("click",ev=>{
-            ev.preventDefault(); showSidePopup(link.dataset.title,link.dataset.text);
-          });
-        });
-        el.querySelectorAll(".kendala-link").forEach(link=>{
-          link.addEventListener("click",ev=>{
-            ev.preventDefault(); showSidePopup("Kendala",link.dataset.text);
-          });
+    marker.on("popupopen", e => {
+      const el = e.popup.getElement();
+      if (!el) return;
+      L.DomEvent.disableClickPropagation(el);
+      el.querySelectorAll(".info-link").forEach(link => {
+        link.addEventListener("click", ev => {
+          ev.preventDefault();
+          showSidePopup(link.dataset.title, link.dataset.text);
         });
       });
-
-      tableBody.insertAdjacentHTML("beforeend",`
-        <tr>
-          <td>${idx+1}</td>
-          <td>${st.ID_Stasiun||""}</td>
-          <td>${st.Stasiun||""}</td>
-          <td>${st.TB||""}</td>
-          <td>${st.TR||""}</td>
-          <td>${st.TRB||""}</td>
-          <td>${st.DKT||""}</td>
-          <td>${st.KR||""}</td>
-          <td>${st.KTG||""}</td>
-          <td>${st.JTG||""}</td>
-          <td>${st.DKTG||""}</td>
-          <td>${st.kendala||""}</td>
-        </tr>`);
+      el.querySelectorAll(".kendala-link").forEach(link => {
+        link.addEventListener("click", ev => {
+          ev.preventDefault();
+          showSidePopup("Kendala", link.dataset.text);
+        });
+      });
     });
+
+    marker.on("tooltipclick", () => marker.openPopup());
+    marker.addTo(alatLayers[info.key]);
   });
+
+  // === Tambahkan baris ke tabel (tidak diubah) ===
+  tableBody.insertAdjacentHTML("beforeend", `
+    <tr>
+      <td>${idx + 1}</td>
+      <td>${st.ID_Stasiun || ""}</td>
+      <td>${st.Stasiun || ""}</td>
+      <td>${st.TB || ""}</td>
+      <td>${st.TR || ""}</td>
+      <td>${st.TRB || ""}</td>
+      <td>${st.DKT || ""}</td>
+      <td>${st.KR || ""}</td>
+      <td>${st.KTG || ""}</td>
+      <td>${st.JTG || ""}</td>
+      <td>${st.DKTG || ""}</td>
+      <td>${st.kendala || ""}</td>
+    </tr>
+  `);
+});
+
 
   function showSidePopup(title, text) {
   const box = document.getElementById("infoSidePopup");
@@ -565,12 +525,39 @@ const marker = L.circleMarker([lat, lon], {
   };
   legend.addTo(map);
 
-  ["I","II","III","IV","V"].forEach(b=>{
-    const el=document.getElementById("balai"+b);
-    el.onchange=e=>{
-      e.target.checked?map.addLayer(balaiLayers[b]):map.removeLayer(balaiLayers[b]);
-    };
+  // === Logika checkbox: hanya satu kategori alat yang bisa aktif ===
+["theodolite", "tabung", "ground"].forEach(key => {
+  const el = document.getElementById(key);
+  el.addEventListener("change", e => {
+    if (e.target.checked) {
+      // Uncheck semua checkbox lain
+      ["theodolite", "tabung", "ground"].forEach(otherKey => {
+        if (otherKey !== key) {
+          const otherEl = document.getElementById(otherKey);
+          otherEl.checked = false;
+          map.removeLayer(alatLayers[otherKey]);
+        }
+      });
+      // Tampilkan layer yang dipilih
+      map.addLayer(alatLayers[key]);
+    } else {
+      // Jika di-uncheck, layernya disembunyikan
+      map.removeLayer(alatLayers[key]);
+    }
   });
+});
+
+// === Set default ke "Theodolite" ===
+document.getElementById("theodolite").checked = true;
+map.addLayer(alatLayers["theodolite"]);
+["tabung", "ground"].forEach(k => {
+  document.getElementById(k).checked = false;
+  map.removeLayer(alatLayers[k]);
+});
+
+});
+
+
   </script>
 </body>
 </html>
