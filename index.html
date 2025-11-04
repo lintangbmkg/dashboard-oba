@@ -523,7 +523,7 @@ alatInfo.forEach(info => {
       {icon:"🟢",label:"Baik"},
       {icon:"🟡",label:"Rusak Ringan Bisa Digunakan"},
       {icon:"🔴",label:"Rusak Berat"},
-      {icon:"❓",label:"Tidak ada data"}
+      {icon:"⚫",label:"Tidak ada data"}
     ];
     div.innerHTML="<b>Keterangan:</b><br>"+items.map(i=>`${i.icon} ${i.label}`).join("<br>");
     return div;
@@ -566,5 +566,6 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
