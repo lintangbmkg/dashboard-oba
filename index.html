@@ -412,6 +412,16 @@ map.on && map.on('exitFullscreen', () => {
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
     },
+    {
+      key: "kop",
+      color: warnaDariKondisi(kondisi.kop),
+      popup: `
+        <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
+        <b>Kop Gas:</b> ${st.KKG || "tidak ada data"}<br>
+        ${st.DKG ? `<b>ℹ️:</b> ${st.DKG}<br>` : ""}
+        ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
+      `,
+    },
   ];
 
   // === Tambahkan marker ke tiap layer alat ===
@@ -574,6 +584,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
