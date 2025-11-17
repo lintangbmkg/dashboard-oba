@@ -111,11 +111,11 @@ h3, h4 {
 
   /* === Station Labels === */
   .station-label {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     color: #000;
     background: rgba(255,255,255,0.9);
-    padding: 2px 6px;
+    padding: 1px 4px;
     border-radius: 4px;
     border: none;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -214,9 +214,9 @@ thead th {
           <tr>
             <th>No</th><th>Stasiun</th>
             <th>Theodolite Baik</th><th>Theodolite Rusak Ringan</th><th>Theodolite Rusak Berat</th>
-            <th>Kerusakan Theodolite</th><th>Kondisi Ground Equipment</th>
+            <th>Keterangan Kerusakan Theodolite</th><th>Kondisi Ground Equipment</th>
             <th>Tahun Pengadaan Ground Equipment</th><th>Kondisi Tabung Gas</th>
-            <th>Kerusakan Tabung Gas</th><th>Tahun Pengadaan Tabung Gas</th>
+            <th>Keterangan Kerusakan Tabung Gas</th><th>Tahun Pengadaan Tabung Gas</th>
             <th>Kondisi Kop Gas</th>Tahun Pengadaan Kop Gas</th><th>
             <th>Kendala Lainnya</th>
           </tr>
@@ -376,7 +376,7 @@ map.on && map.on('exitFullscreen', () => {
     if (k.includes("baik")) return "green";
     if (k.includes("ringan")) return "#FFDE21";
     if (k.includes("berat")) return "red";
-    return "#242424";
+    return "#161618";
   }
 
   // === Buat marker untuk tiap alat ===
@@ -584,6 +584,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
