@@ -374,9 +374,9 @@ map.on && map.on('exitFullscreen', () => {
   function warnaDariKondisi(k) {
     if (!k) return "#777";
     if (k.includes("baik")) return "green";
-    if (k.includes("ringan")) return "yellow";
+    if (k.includes("ringan")) return "#FFDE21";
     if (k.includes("berat")) return "red";
-    return "#777";
+    return "#242424";
   }
 
   // === Buat marker untuk tiap alat ===
@@ -584,6 +584,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
