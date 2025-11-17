@@ -202,7 +202,7 @@ thead th {
   <div class="checkbox-group">
   <label><input type="checkbox" id="theodolite" checked> Theodolite </label><br>
   <label><input type="checkbox" id="tabung" checked> Tabung Gas </label><br>
-  <label><input type="checkbox" id="ground" checked> Ground Equipment </label>
+  <label><input type="checkbox" id="ground" checked> Ground Equipment </label><br>
   <label><input type="checkbox" id="kop" checked> Kop gas </label>
   </div>
 
@@ -212,10 +212,13 @@ thead th {
       <table>
         <thead>
           <tr>
-            <th>No</th><th>Nomor Stasiun</th><th>Stasiun</th>
+            <th>No</th><th>Stasiun</th>
             <th>Theodolite Baik</th><th>Theodolite Rusak Ringan</th><th>Theodolite Rusak Berat</th>
-            <th>Kerusakan Theodolite</th><th>Kondisi Receiver</th><th>Kondisi Tabung Gas</th>
-            <th>Jenis Tabung Gas</th><th>Kerusakan Tabung Gas</th><th>Kendala Lainnya</th>
+            <th>Kerusakan Theodolite</th><th>Kondisi Ground Equipment</th>
+            <th>Tahun Pengadaan Ground Equipment</th><th>Kondisi Tabung Gas</th>
+            <th>Kerusakan Tabung Gas</th><th>Tahun Pengadaan Tabung Gas</th>
+            <th>Kondisi Kop Gas</th>Tahun Pengadaan Kop Gas</th><th>
+            <th>Kendala Lainnya</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -461,16 +464,18 @@ alatInfo.forEach(info => {
   tableBody.insertAdjacentHTML("beforeend", `
     <tr>
       <td>${idx + 1}</td>
-      <td>${st.ID_Stasiun || ""}</td>
       <td>${st.Stasiun || ""}</td>
       <td>${st.TB || ""}</td>
       <td>${st.TR || ""}</td>
       <td>${st.TRB || ""}</td>
       <td>${st.DKT || ""}</td>
       <td>${st.KR || ""}</td>
+      <td>${st.t_R || ""}</td>
       <td>${st.KTG || ""}</td>
-      <td>${st.JTG || ""}</td>
       <td>${st.DKTG || ""}</td>
+      <td>${st.t_TG || ""}</td>
+      <td>${st.KKG || ""}</td>
+      <td>${st.t_KG || ""}</td>
       <td>${st.kendala || ""}</td>
     </tr>
   `);
@@ -569,6 +574,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
