@@ -200,9 +200,10 @@ thead th {
   </div>
 
   <div class="checkbox-group">
-    <label><input type="checkbox" id="theodolite" checked> Theodolite </label><br>
+  <label><input type="checkbox" id="theodolite" checked> Theodolite </label><br>
   <label><input type="checkbox" id="tabung" checked> Tabung Gas </label><br>
   <label><input type="checkbox" id="ground" checked> Ground Equipment </label>
+  <label><input type="checkbox" id="kop" checked> Kop gas </label>
   </div>
 
   <div id="pageData" class="page">
@@ -277,6 +278,7 @@ const alatLayers = {
   theodolite: L.layerGroup().addTo(map),
   tabung: L.layerGroup().addTo(map),
   ground: L.layerGroup().addTo(map),
+  kop: L.layerGroup().addTo(map),
 };
 
   
@@ -362,13 +364,14 @@ map.on && map.on('exitFullscreen', () => {
     })(),
     tabung: (st.KTG || "").toLowerCase(),
     ground: (st.KR || "").toLowerCase(),
+    kop: (st.KKG || "").toLowerCase(),
   };
 
   // === Fungsi bantu untuk pilih warna marker ===
   function warnaDariKondisi(k) {
     if (!k) return "#777";
     if (k.includes("baik")) return "green";
-    if (k.includes("ringan")) return "orange";
+    if (k.includes("ringan")) return "yellow";
     if (k.includes("berat")) return "red";
     return "#777";
   }
@@ -521,7 +524,7 @@ alatInfo.forEach(info => {
     var div=L.DomUtil.create("div","legend");
     const items=[
       {icon:"🟢",label:"Baik"},
-      {icon:"🟡",label:"Rusak Ringan Bisa Digunakan"},
+      {icon:"🟡",label:"Rusak Ringan"},
       {icon:"🔴",label:"Rusak Berat"},
       {icon:"⚫",label:"Tidak ada data"}
     ];
@@ -531,12 +534,12 @@ alatInfo.forEach(info => {
   legend.addTo(map);
 
   // === Logika checkbox: hanya satu kategori alat yang bisa aktif ===
-["theodolite", "tabung", "ground"].forEach(key => {
+["theodolite", "tabung", "ground", "kop"].forEach(key => {
   const el = document.getElementById(key);
   el.addEventListener("change", e => {
     if (e.target.checked) {
       // Uncheck semua checkbox lain
-      ["theodolite", "tabung", "ground"].forEach(otherKey => {
+      ["theodolite", "tabung", "ground", "kop"].forEach(otherKey => {
         if (otherKey !== key) {
           const otherEl = document.getElementById(otherKey);
           otherEl.checked = false;
@@ -555,7 +558,7 @@ alatInfo.forEach(info => {
 // === Set default ke "Theodolite" ===
 document.getElementById("theodolite").checked = true;
 map.addLayer(alatLayers["theodolite"]);
-["tabung", "ground"].forEach(k => {
+["tabung", "ground", "kop"].forEach(k => {
   document.getElementById(k).checked = false;
   map.removeLayer(alatLayers[k]);
 });
@@ -566,6 +569,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
