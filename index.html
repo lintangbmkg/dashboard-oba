@@ -212,13 +212,27 @@ thead th {
       <table>
         <thead>
           <tr>
-            <th>No</th><th>Stasiun</th>
-            <th>Theodolite Baik</th><th>Theodolite Rusak Ringan</th><th>Theodolite Rusak Berat</th>
-            <th>Keterangan Kerusakan Theodolite</th><th>Kondisi Ground Equipment</th>
-            <th>Tahun Pengadaan Ground Equipment</th><th>Kondisi Tabung Gas</th>
-            <th>Keterangan Kerusakan Tabung Gas</th><th>Tahun Pengadaan Tabung Gas</th>
-            <th>Kondisi Kop Gas</th>Tahun Pengadaan Kop Gas</th><th>
+           <th>No</th>
+            <th>Stasiun</th>
+            
+            <th>Theodolite Baik</th>
+            <th>Theodolite Rusak Ringan</th>
+            <th>Theodolite Rusak Berat</th>
+            <th>Keterangan Kerusakan Theodolite</th>
+            
+            <th>Kondisi Ground Equipment</th>
+            <th>Tahun Pengadaan Ground Equipment</th>
+            
+            <th>Kondisi Tabung Gas</th>
+            <th>Keterangan Kerusakan Tabung Gas</th>
+            <th>Tahun Pengadaan Tabung Gas</th>
+            
+            <th>Kondisi Kop Gas</th>
+            <th>Tahun Pengadaan Kop Gas</th>
+            
             <th>Kendala Lainnya</th>
+            <th>File Surat</th>
+
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -397,6 +411,7 @@ map.on && map.on('exitFullscreen', () => {
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Tabung Gas:</b> ${st.KTG || "tidak ada data"}<br>
+        ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_TG}<br>` : ""}
         ${st.JTG ? `<b>ℹ️:</b> ${st.DKTG}<br>` : ""}
         ${st.DKTG ? `<b>Jenis:</b> ${st.JTG}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
@@ -408,6 +423,7 @@ map.on && map.on('exitFullscreen', () => {
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Ground Equipment:</b> ${st.KR || "tidak ada data"}<br>
+        ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_R}<br>` : ""}
         ${st.DKR ? `<b>ℹ️:</b> ${st.DKR}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
@@ -418,6 +434,7 @@ map.on && map.on('exitFullscreen', () => {
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Kop Gas:</b> ${st.KKG || "tidak ada data"}<br>
+        ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_KG}<br>` : ""}
         ${st.DKG ? `<b>ℹ️:</b> ${st.DKG}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
@@ -487,6 +504,7 @@ alatInfo.forEach(info => {
       <td>${st.KKG || ""}</td>
       <td>${st.t_KG || ""}</td>
       <td>${st.kendala || ""}</td>
+      <td>${st.surat || ""}</td>
     </tr>
   `);
 });
@@ -584,6 +602,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
