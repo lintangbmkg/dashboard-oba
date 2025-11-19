@@ -386,7 +386,7 @@ map.on && map.on('exitFullscreen', () => {
 
   // === Fungsi bantu untuk pilih warna marker ===
   function warnaDariKondisi(k) {
-    if (!k) return "#777";
+    if (!k) return "#161618";
     if (k.includes("baik")) return "green";
     if (k.includes("ringan")) return "#FFDE21";
     if (k.includes("berat")) return "red";
@@ -412,8 +412,8 @@ map.on && map.on('exitFullscreen', () => {
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Tabung Gas:</b> ${st.KTG || "tidak ada data"}<br>
         ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_TG}<br>` : ""}
-        ${st.JTG ? `<b>ℹ️:</b> ${st.DKTG}<br>` : ""}
-        ${st.DKTG ? `<b>Jenis:</b> ${st.JTG}<br>` : ""}
+        ${st.JTG ? `<b>ℹ️:</b> ${st.JTG}<br>` : ""}
+        ${st.DKTG ? `<b>Jenis:</b> ${st.DKTG}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
     },
@@ -423,7 +423,6 @@ map.on && map.on('exitFullscreen', () => {
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Ground Equipment:</b> ${st.KR || "tidak ada data"}<br>
-        ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_R}<br>` : ""}
         ${st.DKR ? `<b>ℹ️:</b> ${st.DKR}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
@@ -434,7 +433,7 @@ map.on && map.on('exitFullscreen', () => {
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Kop Gas:</b> ${st.KKG || "tidak ada data"}<br>
-        ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_KG}<br>` : ""}
+        ${st.t_KG ? `<b>Tahun Pengadaan:</b> ${st.t_KG}<br>` : ""}
         ${st.DKG ? `<b>ℹ️:</b> ${st.DKG}<br>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala</a>` : ""}
       `,
@@ -602,6 +601,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
