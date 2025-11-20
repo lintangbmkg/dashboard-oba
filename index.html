@@ -120,6 +120,13 @@ h3, h4 {
     border: none;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
+    .leaflet-tooltip.station-label {
+  z-index: 300 !important;     /* lebih rendah dari circleMarker */
+}
+
+.leaflet-interactive {
+  z-index: 400 !important;     /* marker kondisi tetap di atas label */
+}
 
   /* === Table === */
   table {
@@ -605,6 +612,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
