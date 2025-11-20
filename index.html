@@ -409,7 +409,7 @@ map.on && map.on('exitFullscreen', () => {
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Theodolite:</b> ${kondisi.theodolite || "tidak ada data"}<br>
         ${st.DKT ? `<b>ℹ️</b> ${st.DKT}<br>` : ""}
-        ${st.surat ? `<br><a href="${st.surat}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
+        ${st.surat_T ? `<br><a href="${st.surat_T}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala Operasional</a>` : ""}
       `,
     },
@@ -422,7 +422,7 @@ map.on && map.on('exitFullscreen', () => {
         ${st.t_TG ? `<b>Tahun Pengadaan:</b> ${st.t_TG}<br>` : ""}
         ${st.DKTG ? `<b>ℹ️:</b> ${st.DKTG}<br>` : ""}
         ${st.JTG ? `<b>Jenis:</b> ${st.JTG}<br>` : ""}
-        ${st.surat ? `<br><a href="${st.surat}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
+        ${st.surat_TG ? `<br><a href="${st.surat_TG}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala Operasional</a>` : ""}
       `,
     },
@@ -433,7 +433,7 @@ map.on && map.on('exitFullscreen', () => {
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
         <b>Ground Equipment:</b> ${st.KR || "tidak ada data"}<br>
         ${st.DKR ? `<b>ℹ️:</b> ${st.DKR}<br>` : ""}
-        ${st.surat ? `<br><a href="${st.surat}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
+        ${st.surat_TG ? `<br><a href="${st.surat_TG}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala Operasional</a>` : ""}
       `,
     },
@@ -445,7 +445,7 @@ map.on && map.on('exitFullscreen', () => {
         <b>Kop Gas:</b> ${st.KKG || "tidak ada data"}<br>
         ${st.t_KG ? `<b>Tahun Pengadaan:</b> ${st.t_KG}<br>` : ""}
         ${st.DKG ? `<b>ℹ️:</b> ${st.DKG}<br>` : ""}
-        ${st.surat ? `<br><a href="${st.surat}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
+        ${st.surat_KG ? `<br><a href="${st.surat_KG}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala Operasional</a>` : ""}
       `,
     },
@@ -612,6 +612,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
