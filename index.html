@@ -110,7 +110,8 @@ h3, h4 {
   }
 
   /* === Station Labels === */
-  .station-label {
+  /* warna default */
+.station-label {
     font-size: 10px;
     font-weight: 500;
     color: #000;
@@ -119,19 +120,21 @@ h3, h4 {
     border-radius: 4px;
     border: none;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    z-index: 300 !important;
     pointer-events: auto !important;
-    cursor: pointer;  
-  }
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
 
+/* hover */
 .station-label:hover {
-  background: #ebebf5 !important;
+    background: #bebecc !important;
 }
 
-/* Klik (active): warna sedikit lebih gelap */
-.station-label a.active {
-  background: #bebecc !important;
+/* warna saat dipilih */
+.station-label.selected-label {
+    background: #bebecc !important;
 }
+
 
     
 .leaflet-interactive {
@@ -479,37 +482,53 @@ alatInfo.forEach(info => {
   }).bindPopup(info.popup);
 
 
-    // Tooltip nama stasiun
-    if (st.Label) {
-      marker.bindTooltip(st.Label, {
-        permanent: true,
-        direction: "right",
-        className: "station-label",
-        interactive: true,
-      });
-    }
-
-    marker.on("popupopen", e => {
-      const el = e.popup.getElement();
-      if (!el) return;
-      L.DomEvent.disableClickPropagation(el);
-      el.querySelectorAll(".info-link").forEach(link => {
-        link.addEventListener("click", ev => {
-          ev.preventDefault();
-          showSidePopup(link.dataset.title, link.dataset.text);
-        });
-      });
-      el.querySelectorAll(".kendala-link").forEach(link => {
-        link.addEventListener("click", ev => {
-          ev.preventDefault();
-          showSidePopup("Kendala", link.dataset.text);
-        });
-      });
-    });
-
-    marker.on("tooltipclick", () => marker.openPopup());
-    marker.addTo(alatLayers[info.key]);
+   // Tooltip nama stasiun
+if (st.Label) {
+  marker.bindTooltip(st.Label, {
+    permanent: true,
+    direction: "right",
+    className: "station-label",
+    interactive: true,
   });
+}
+
+marker.on("tooltipopen", (e) => {
+  const el = e.tooltip.getElement();
+  if (!el) return;
+
+  // Saat label diklik → jadikan "selected"
+  el.addEventListener("click", () => {
+    // hapus selected dari semua label lain
+    document.querySelectorAll(".station-label.selected-label")
+      .forEach(lbl => lbl.classList.remove("selected-label"));
+
+    // beri class selected pada label ini
+    el.classList.add("selected-label");
+  });
+});
+
+// Popup handler (punyamu, tidak diubah)
+marker.on("popupopen", e => {
+  const el = e.popup.getElement();
+  if (!el) return;
+  L.DomEvent.disableClickPropagation(el);
+  el.querySelectorAll(".info-link").forEach(link => {
+    link.addEventListener("click", ev => {
+      ev.preventDefault();
+      showSidePopup(link.dataset.title, link.dataset.text);
+    });
+  });
+  el.querySelectorAll(".kendala-link").forEach(link => {
+    link.addEventListener("click", ev => {
+      ev.preventDefault();
+      showSidePopup("Kendala", link.dataset.text);
+    });
+  });
+});
+
+marker.on("tooltipclick", () => marker.openPopup());
+marker.addTo(alatLayers[info.key]);
+});
 
   // === Tambahkan baris ke tabel (tidak diubah) ===
   tableBody.insertAdjacentHTML("beforeend", `
@@ -626,6 +645,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
