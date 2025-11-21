@@ -229,6 +229,11 @@ thead th {
 
   <div id="pageData" class="page">
     <h3>Tabel Data Peralatan Observasi Udara Atas UPT</h3>
+    <button id="downloadExcelBtn"
+  style="background:#1061b8;color:white;padding:6px 12px;
+  border:none;border-radius:6px;cursor:pointer;margin-bottom:10px;">
+  ⬇️ Download Excel
+</button>
     <div style="max-height: 90vh; overflow-y: auto; overflow-x: auto;">
       <table>
         <thead>
@@ -265,6 +270,8 @@ thead th {
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 
   <script>
   // === NAVIGATION ===
@@ -647,28 +654,17 @@ map.addLayer(alatLayers["theodolite"]);
 
 });
 
+// === DOWNLOAD TABEL MENJADI EXCEL ===
+document.getElementById("downloadExcelBtn").addEventListener("click", () => {
+    const table = document.querySelector("#tableBody").parentNode; // ambil element <table>
+
+    // Convert HTML table → worksheet
+    const wb = XLSX.utils.table_to_book(table, { sheet: "dashboard", raw: true });
+
+    // Download file
+    XLSX.writeFile(wb, "Update Peralatan Pengamatan Udara Atas.xlsx");
+});
 
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
