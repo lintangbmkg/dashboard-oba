@@ -142,33 +142,56 @@ h3, h4 {
 }
 
 
-  /* === Table === */
-  table {
-  border-collapse: collapse;
+ /* === TABEL MODERN & COMPACT === */
+.table-container {
   width: 100%;
-  font-size: 14px;
-  table-layout: fixed; /* membantu rendering sticky lebih stabil */
+  overflow-x: auto;        /* buat scroll horizontal */
+  overflow-y: visible;
 }
 
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;         /* lebih kecil & compact */
+  table-layout: auto;      /* biarkan kolom menyesuaikan isi */
+}
+
+/* Header */
 thead th {
   position: sticky;
   top: 0;
   background: #1d8e26;
   color: white;
+  padding: 6px 8px;
   z-index: 10;
+  white-space: nowrap;     /* header tidak patah */
 }
 
-  th, td {
-    border: 1px solid #e0e0e0;
-    padding: 8px;
-    text-align: center;
-  }
+/* Sel Data */
+th, td {
+  border: 1px solid #e0e0e0;
+  padding: 6px 10px;
+  vertical-align: top;     /* teks mulai atas → lebih rapi */
+  text-align: left;        /* lebih mudah dibaca */
+}
 
+/* Kolom angka tetap rata tengah */
+td.numeric,
+th.numeric {
+  text-align: center;
+}
 
-  table td:nth-child(3) {
-    text-align: left;
-    padding-left: 8px;
-  }
+/* Row alternate (zebra) */
+tbody tr:nth-child(even) {
+  background: #f8f8f8;
+}
+
+/* Hindari teks bertumpuk */
+td {
+  white-space: normal;
+  word-break: break-word;
+}
 
   /* === Side Popup === */
   .info-side-popup {
@@ -229,10 +252,10 @@ thead th {
 
   <div id="pageData" class="page">
     <h3>Tabel Data Peralatan Observasi Udara Atas UPT</h3>
-    <button id="downloadExcelBtn"
+    <button id="dExcelBtn"
   style="background:#1061b8;color:white;padding:6px 12px;
   border:none;border-radius:6px;cursor:pointer;margin-bottom:10px;">
-  ⬇️ Download Excel
+  📩 Download Excel
 </button>
     <div style="max-height: 90vh; overflow-y: auto; overflow-x: auto;">
       <table>
@@ -668,3 +691,4 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
