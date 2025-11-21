@@ -313,6 +313,11 @@ linkData.addEventListener("click", () => {
 
 map.getPane("tooltipPane").style.zIndex = 300;
 map.getPane("markerPane").style.zIndex = 400;
+    map.on("click", () => {
+  document.querySelectorAll(".station-label.selected-label")
+    .forEach(lbl => lbl.classList.remove("selected-label"));
+});
+
     
   // === Layer per Alat ===
 const alatLayers = {
@@ -322,6 +327,7 @@ const alatLayers = {
   kop: L.layerGroup().addTo(map),
 };
 
+    
   
   // --- make popup & checkbox visible in fullscreen ---
 // ambil elemen checkbox-group dan infoSidePopup
@@ -645,6 +651,7 @@ map.addLayer(alatLayers["theodolite"]);
   </script>
 </body>
 </html>
+
 
 
 
