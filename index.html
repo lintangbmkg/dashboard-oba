@@ -141,57 +141,66 @@ h3, h4 {
   z-index: 400 !important;
 }
 
-
- /* === TABEL MODERN & COMPACT === */
-.table-container {
-  width: 100%;
-  overflow-x: auto;        /* buat scroll horizontal */
-  overflow-y: visible;
-}
-
-/* Table */
+/* === Table === */
 table {
-  width: 100%;
   border-collapse: collapse;
-  font-size: 12px;         /* lebih kecil & compact */
-  table-layout: auto;      /* biarkan kolom menyesuaikan isi */
+  width: 100%;
+  font-size: 14px;
+  table-layout: fixed; /* penting agar lebar kolom stabil */
 }
 
-/* Header */
 thead th {
   position: sticky;
   top: 0;
   background: #1d8e26;
   color: white;
-  padding: 6px 8px;
   z-index: 10;
-  white-space: nowrap;     /* header tidak patah */
+  white-space: normal;     /* header boleh lebih dari 1 baris */
+  padding: 10px 6px;
+  font-weight: 600;
 }
 
-/* Sel Data */
 th, td {
   border: 1px solid #e0e0e0;
-  padding: 6px 10px;
-  vertical-align: top;     /* teks mulai atas → lebih rapi */
-  text-align: left;        /* lebih mudah dibaca */
-}
-
-/* Kolom angka tetap rata tengah */
-td.numeric,
-th.numeric {
+  padding: 8px;
   text-align: center;
+  vertical-align: top;
+  overflow-wrap: break-word;  /* pecah kata panjang agar tidak melebar */
 }
 
-/* Row alternate (zebra) */
-tbody tr:nth-child(even) {
-  background: #f8f8f8;
+/* === Lebar kolom spesifik === */
+th:nth-child(1), td:nth-child(1) {  /* No */
+  width: 40px;
 }
 
-/* Hindari teks bertumpuk */
-td {
-  white-space: normal;
-  word-break: break-word;
+th:nth-child(2), td:nth-child(2) {  /* Stasiun */
+  width: 220px; /* diperlebar */
+  text-align: left;
 }
+
+th:nth-child(3), td:nth-child(3),  /* Theodolite columns */
+th:nth-child(4), td:nth-child(4),
+th:nth-child(5), td:nth-child(5) {
+  width: 80px; /* kolom angka */
+}
+
+th:nth-child(6), td:nth-child(6) {  /* Keterangan Kerusakan */
+  width: 200px;
+  text-align: left;
+}
+
+th:nth-child(7), td:nth-child(7) {  /* Kondisi Ground Equipment */
+  width: 150px;
+}
+
+th:nth-child(8), td:nth-child(8) {  /* Tahun Pengadaan */
+  width: 100px;
+}
+
+th:nth-child(9), td:nth-child(9) { /* Kondisi Lainnya */
+  width: 150px;
+}
+
 
   /* === Side Popup === */
   .info-side-popup {
@@ -691,4 +700,5 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
