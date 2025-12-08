@@ -147,11 +147,17 @@ h3, h4 {
   overflow-x: auto;
 }
 
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
 /* Tabel */
 table {
   border-collapse: collapse;
-  width: max-content; /* biar bisa scroll ke kanan */
+  width: max-content;
   font-size: 13px;
+  table-layout: fixed; /* 🚀 kunci supaya kolom ngikut width, bukan konten */
 }
 
 /* Header sticky */
@@ -166,38 +172,47 @@ thead th {
   white-space: normal;
 }
 
-/* Body */
-td {
+/* Sel */
+th, td {
   border: 1px solid #ddd;
   padding: 6px;
   white-space: normal;
+  word-wrap: break-word; /* 🚀 agar teks panjang turun */
 }
 
-/* Kolom Nama Stasiun lebih lebar */
-th:nth-child(2),
-td:nth-child(2) {
-  width: 220px;
+/* Kolom Stasiun */
+th:nth-child(2), td:nth-child(2) {
+  width: 160px; /* diperkecil */
   text-align: left;
 }
 
-/* Kolom pendek → header diputar vertikal */
+/* Kolom Keterangan */
+th:nth-last-child(2), td:nth-last-child(2) {
+  width: 200px; /* sesuaikan kebutuhan */
+  text-align: left;
+}
+
+/* Kolom lain dipaksa kecil */
+th:not(:nth-child(2)):not(:nth-last-child(2)),
+td:not(:nth-child(2)):not(:nth-last-child(2)) {
+  width: 80px; /* 🚀 kolom angka/opsi diperkecil */
+  text-align: center;
+}
+
+/* Header rotate untuk kolom kecil */
 .rotate {
   transform: rotate(-90deg);
   writing-mode: vertical-rl;
-  white-space: nowrap;
-  height: 140px;
-  width: 30px;
-  text-align: left;
+  height: 130px;
+  width: 20px;
   padding: 0;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
-/* Hover biar gampang baca */
+/* Hover efek */
 tbody tr:hover td {
   background: #f3f3f3;
 }
-
-
 
   /* === Side Popup === */
   .info-side-popup {
@@ -697,6 +712,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
