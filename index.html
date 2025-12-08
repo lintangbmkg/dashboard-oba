@@ -189,12 +189,16 @@ th, td {
 
 /* No */
 th:nth-child(1), td:nth-child(1) {
-  width: 45px;
+  position: sticky;
+  left: 0;
+  width: 40px;
   text-align: center;
 }
 
 /* Stasiun */
 th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  left: 0;
   width: 170px;
   text-align: left;
 }
@@ -240,13 +244,13 @@ th:nth-child(13), td:nth-child(13) {
 
 /* Kendala Lainnya */
 th:nth-child(14), td:nth-child(14) {
-  width: 160px;
+  width: 180px;
   text-align: left;
 }
 
 /* File Surat */
 th:nth-child(15), td:nth-child(15) {
-  width: 100px;
+  width: 150px;
   text-align: center;
 }
 
@@ -754,6 +758,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
