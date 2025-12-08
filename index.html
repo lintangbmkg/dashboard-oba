@@ -141,12 +141,12 @@ h3, h4 {
   z-index: 400 !important;
 }
 
-/* === Table === */
+/* === TABLE DESIGN === */
 table {
   border-collapse: collapse;
   width: 100%;
   font-size: 14px;
-  table-layout: fixed; /* stabil untuk sticky header */
+  table-layout: auto; /* ganti dari fixed → auto */
 }
 
 thead th {
@@ -155,48 +155,53 @@ thead th {
   background: #1d8e26;
   color: white;
   z-index: 10;
-  padding: 8px;
+  padding: 6px 8px;
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: middle;
 }
 
-/* Border dan isi */
+/* Border + isi */
 th, td {
   border: 1px solid #e0e0e0;
-  padding: 8px;
+  padding: 6px 8px;
   text-align: center;
+  white-space: normal;
+  word-break: break-word;
 }
 
-/* Kolom yang panjang */
-th:nth-child(2),
-td:nth-child(2) {
-  width: 280px;     /* Stasiun */
+/* === Column Width Optimization === */
+
+/* Kolom No */
+th:nth-child(1), td:nth-child(1) {
+  min-width: 40px;
+}
+
+/* Kolom Stasiun (panjang) */
+th:nth-child(2), td:nth-child(2) {
+  min-width: 220px;
   text-align: left;
-  padding-left: 10px;
 }
 
-/* Kolom keterangannya lebih panjang */
-th:nth-child(5),
-td:nth-child(5) {
-  width: 220px;     /* Keterangan Kerusakan */
-  text-align: left;
-  padding-left: 8px;
-}
-
-/* Kolom kecil (angka) */
-th:nth-child(1), td:nth-child(1),
+/* Kolom angka kecil */
 th:nth-child(3), td:nth-child(3),
-th:nth-child(4), td:nth-child(4) {
-  width: 70px;
+th:nth-child(4), td:nth-child(4),
+th:nth-child(5), td:nth-child(5) {
+  min-width: 70px;
 }
 
-/* Tambahan: wrap text supaya header tidak melebar */
-th {
-  white-space: normal;
-  word-wrap: break-word;
+/* Keterangan Kerusakan */
+th:nth-child(6), td:nth-child(6) {
+  min-width: 160px;
+  text-align: left;
 }
-td {
-  white-space: normal;
-  word-wrap: break-word;
+
+/* Kendala Lainnya (paling lebar) */
+th:last-child, td:last-child {
+  min-width: 200px;
+  text-align: left;
 }
+
 
 
   /* === Side Popup === */
@@ -697,6 +702,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
