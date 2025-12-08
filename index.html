@@ -152,67 +152,103 @@ h3, h4 {
   overflow-x: auto;
 }
 
-/* Tabel */
+/* Container agar dapat di-scroll */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Table */
 table {
   border-collapse: collapse;
   width: max-content;
+  table-layout: fixed; /* Wajib */
   font-size: 13px;
-  table-layout: fixed; /* 🚀 kunci supaya kolom ngikut width, bukan konten */
 }
 
-/* Header sticky */
+/* Sticky header */
 thead th {
   position: sticky;
   top: 0;
   background: #1d8e26;
   color: white;
-  z-index: 2;
+  z-index: 3;
   padding: 6px;
-  border: 1px solid #ddd;
-  white-space: normal;
 }
 
 /* Sel */
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid #dcdcdc;
   padding: 6px;
   white-space: normal;
-  word-wrap: break-word; /* 🚀 agar teks panjang turun */
+  word-wrap: break-word;
+  vertical-align: middle;
 }
 
-/* Kolom Stasiun */
-th:nth-child(2), td:nth-child(2) {
-  width: 160px; /* diperkecil */
-  text-align: left;
-}
+/* === LEBAR KOLOM SESUAI TIPE DATA === */
 
-/* Kolom Keterangan */
-th:nth-last-child(2), td:nth-last-child(2) {
-  width: 200px; /* sesuaikan kebutuhan */
-  text-align: left;
-}
-
-/* Kolom lain dipaksa kecil */
-th:not(:nth-child(2)):not(:nth-last-child(2)),
-td:not(:nth-child(2)):not(:nth-last-child(2)) {
-  width: 80px; /* 🚀 kolom angka/opsi diperkecil */
+/* No */
+th:nth-child(1), td:nth-child(1) {
+  width: 45px;
   text-align: center;
 }
 
-/* Header rotate untuk kolom kecil */
-.rotate {
-  transform: rotate(-90deg);
-  writing-mode: vertical-rl;
-  height: 130px;
-  width: 20px;
-  padding: 0;
-  line-height: 1.2;
+/* Stasiun */
+th:nth-child(2), td:nth-child(2) {
+  width: 170px;
+  text-align: left;
 }
 
-/* Hover efek */
+/* Theodolite (3 kolom) */
+th:nth-child(3), td:nth-child(3),
+th:nth-child(4), td:nth-child(4),
+th:nth-child(5), td:nth-child(5) {
+  width: 80px;
+  text-align: center;
+}
+
+/* Keterangan Kerusakan Theodolite */
+th:nth-child(6), td:nth-child(6) {
+  width: 180px;
+  text-align: left;
+}
+
+/* Ground Equipment (2 kolom) */
+th:nth-child(7), td:nth-child(7),
+th:nth-child(8), td:nth-child(8) {
+  width: 90px;
+}
+
+/* Tabung Gas (3 kolom) */
+th:nth-child(9), td:nth-child(9),
+th:nth-child(10), td:nth-child(10),
+th:nth-child(11), td:nth-child(11) {
+  width: 90px;
+}
+
+/* Kop Gas (2 kolom) */
+th:nth-child(12), td:nth-child(12),
+th:nth-child(13), td:nth-child(13) {
+  width: 80px;
+}
+
+/* Kendala Lainnya */
+th:nth-child(14), td:nth-child(14) {
+  width: 160px;
+  text-align: left;
+}
+
+/* File Surat */
+th:nth-child(15), td:nth-child(15) {
+  width: 100px;
+  text-align: center;
+}
+
+/* Hover highlight */
 tbody tr:hover td {
   background: #f3f3f3;
 }
+
 
   /* === Side Popup === */
   .info-side-popup {
@@ -712,6 +748,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
