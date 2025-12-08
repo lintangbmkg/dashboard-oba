@@ -141,65 +141,60 @@ h3, h4 {
   z-index: 400 !important;
 }
 
-/* === TABLE DESIGN === */
-table {
-  border-collapse: collapse;
+
+.table-container {
   width: 100%;
-  font-size: 14px;
-  table-layout: auto; /* ganti dari fixed → auto */
+  overflow-x: auto;
 }
 
+/* Tabel */
+table {
+  border-collapse: collapse;
+  width: max-content; /* biar bisa scroll ke kanan */
+  font-size: 13px;
+}
+
+/* Header sticky */
 thead th {
   position: sticky;
   top: 0;
   background: #1d8e26;
   color: white;
-  z-index: 10;
-  padding: 6px 8px;
+  z-index: 2;
+  padding: 6px;
+  border: 1px solid #ddd;
   white-space: normal;
-  word-break: break-word;
-  vertical-align: middle;
 }
 
-/* Border + isi */
-th, td {
-  border: 1px solid #e0e0e0;
-  padding: 6px 8px;
-  text-align: center;
+/* Body */
+td {
+  border: 1px solid #ddd;
+  padding: 6px;
   white-space: normal;
-  word-break: break-word;
 }
 
-/* === Column Width Optimization === */
-
-/* Kolom No */
-th:nth-child(1), td:nth-child(1) {
-  min-width: 40px;
-}
-
-/* Kolom Stasiun (panjang) */
-th:nth-child(2), td:nth-child(2) {
-  min-width: 220px;
+/* Kolom Nama Stasiun lebih lebar */
+th:nth-child(2),
+td:nth-child(2) {
+  width: 220px;
   text-align: left;
 }
 
-/* Kolom angka kecil */
-th:nth-child(3), td:nth-child(3),
-th:nth-child(4), td:nth-child(4),
-th:nth-child(5), td:nth-child(5) {
-  min-width: 70px;
+/* Kolom pendek → header diputar vertikal */
+.rotate {
+  transform: rotate(-90deg);
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  height: 140px;
+  width: 30px;
+  text-align: left;
+  padding: 0;
+  line-height: 1.1;
 }
 
-/* Keterangan Kerusakan */
-th:nth-child(6), td:nth-child(6) {
-  min-width: 160px;
-  text-align: left;
-}
-
-/* Kendala Lainnya (paling lebar) */
-th:last-child, td:last-child {
-  min-width: 200px;
-  text-align: left;
+/* Hover biar gampang baca */
+tbody tr:hover td {
+  background: #f3f3f3;
 }
 
 
@@ -702,6 +697,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
