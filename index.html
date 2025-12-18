@@ -112,7 +112,7 @@ h3, h4 {
   /* === Station Labels === */
   /* warna default */
 .station-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
     color: #000;
     background: rgba(255,255,255,0.9);
@@ -582,7 +582,7 @@ alatInfo.forEach(info => {
   if (info.key === "ground" && (idx < 1 || idx > 21)) return;
 
   const marker = L.circleMarker([lat, lon], {
-    radius: 6,
+    radius: 7,
     color: info.color,
     fillColor: info.color,
     fillOpacity: 0.85,
@@ -762,6 +762,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
