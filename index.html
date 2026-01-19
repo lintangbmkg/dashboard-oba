@@ -511,7 +511,7 @@ map.on && map.on('exitFullscreen', () => {
       return "tidak ada";
     })(),
     tabung: (st.KTG || "").toLowerCase(),
-    ground: (st.KR || "").toLowerCase(),
+    ground: (st.KGE || "").toLowerCase(),
     kop: (st.KKG || "").toLowerCase(),
   };
 
@@ -555,9 +555,9 @@ map.on && map.on('exitFullscreen', () => {
       color: warnaDariKondisi(kondisi.ground),
       popup: `
         <b>${st.ID_Stasiun}</b><br><b>${st.Stasiun}</b><hr>
-        <b>Ground Equipment:</b> ${st.KR || "tidak ada data"}<br>
-        ${st.DKR ? `<b>ℹ️</b> ${st.DKR}<br>` : ""}
-        ${st.surat_TG ? `<br><a href="${st.surat_TG}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
+        <b>Ground Equipment:</b> ${st.KGE || "tidak ada data"}<br>
+        ${st.DKGE ? `<b>ℹ️</b> ${st.DKGE}<br>` : ""}
+        ${st.surat_GE ? `<br><a href="${st.surat_GE}" target="_blank" class="surat-link">📁 File Surat</a>` : ""}
         ${st.kendala ? `<a href="#" class="kendala-link" data-text="${st.kendala.replace(/"/g,"&quot;")}">🚫 Kendala Operasional</a>` : ""}
       `,
     },
@@ -646,8 +646,8 @@ marker.addTo(alatLayers[info.key]);
       <td>${st.TR || ""}</td>
       <td>${st.TRB || ""}</td>
       <td>${st.DKT || ""}</td>
-      <td>${st.KR || ""}</td>
-      <td>${st.t_R || ""}</td>
+      <td>${st.KGE || ""}</td>
+      <td>${st.t_GE || ""}</td>
       <td>${st.KTG || ""}</td>
       <td>${st.DKTG || ""}</td>
       <td>${st.t_TG || ""}</td>
@@ -762,6 +762,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
