@@ -578,18 +578,17 @@ map.on && map.on('exitFullscreen', () => {
   // === Tambahkan marker ke tiap layer alat ===
 alatInfo.forEach(info => {
 
-  // ⛔️ Jika ini layer ground, batasi hanya untuk baris 2–23 (idx mulai dari 0)
-  
-  const extraIdx = [29, 48, 53, 57, 66, 71, 72]; 
+  // 1. Array index dikurangi 2 dari nomor baris yang diinginkan di Spreadsheet
+const extraIdx = [28, 47, 52, 56, 65, 70, 71]; 
 
-// 2. Terapkan kondisinya
 if (info.key === "ground") {
-  // Cek apakah idx ada di rentang 1-21
-  const isWithinRange = idx >= 1 && idx <= 21;
+  // Rentang idx 0 sampai 21 akan menampilkan Baris 2 sampai 23 di Spreadsheet
+  const isWithinRange = idx >= 0 && idx <= 21;
+  
   // Cek apakah idx ada di dalam daftar tambahan
   const isExtraRow = extraIdx.includes(idx);
 
-  // ⛔️ Jika BUKAN di rentang 1-23 DAN BUKAN di baris tambahan, maka abaikan (return)
+  // ⛔️ Jika BUKAN di rentang 0-21 DAN BUKAN di baris tambahan, maka abaikan (return)
   if (!isWithinRange && !isExtraRow) {
     return;
   }
@@ -776,6 +775,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
