@@ -579,7 +579,21 @@ map.on && map.on('exitFullscreen', () => {
 alatInfo.forEach(info => {
 
   // ⛔️ Jika ini layer ground, batasi hanya untuk baris 2–23 (idx mulai dari 0)
-  if (info.key === "ground" && (idx < 1 || idx > 21)) return;
+  
+  const extraIdx = [29, 48, 53, 57, 66, 71, 72]; 
+
+// 2. Terapkan kondisinya
+if (info.key === "ground") {
+  // Cek apakah idx ada di rentang 1-21
+  const isWithinRange = idx >= 1 && idx <= 23;
+  // Cek apakah idx ada di dalam daftar tambahan
+  const isExtraRow = extraIdx.includes(idx);
+
+  // ⛔️ Jika BUKAN di rentang 1-23 DAN BUKAN di baris tambahan, maka abaikan (return)
+  if (!isWithinRange && !isExtraRow) {
+    return;
+  }
+}
 
   const marker = L.circleMarker([lat, lon], {
     radius: 7,
@@ -762,6 +776,7 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
   </script>
 </body>
 </html>
+
 
 
 
