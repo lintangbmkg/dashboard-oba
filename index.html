@@ -193,7 +193,7 @@ th:nth-child(1), td:nth-child(1) {
   left: 0;
   width: 40px;
   text-align: center;
-  background: "wihte";
+  background: "white";
   z-index: 20;
 }
 
@@ -578,20 +578,13 @@ map.on && map.on('exitFullscreen', () => {
   // === Tambahkan marker ke tiap layer alat ===
 alatInfo.forEach(info => {
 
-  if (info.key === "ground") {
-
-  const spreadsheetRow = idx + 2;
-
-  const allowedRows = [
-    ...Array.from({length: 22}, (_, i) => i + 2), // 2-23
-    30, 49, 54, 58, 67, 72, 73
-  ];
-
-  if (!allowedRows.includes(spreadsheetRow)) {
-    return;
+  // Tampilkan Ground Equipment hanya untuk stasiun PR
+  if (
+      info.key === "ground" &&
+      (st.Pengamatan || "").trim().toUpperCase() !== "PR"
+  ) {
+      return;
   }
-}
-
   const marker = L.circleMarker([lat, lon], {
     radius: 7,
     color: info.color,
