@@ -586,11 +586,12 @@ alatInfo.forEach(info => {
       return;
   }
   const marker = L.circleMarker([lat, lon], {
-    radius: 7,
-    color: info.color,
-    fillColor: info.color,
-    fillOpacity: 0.85,
-  }).bindPopup(info.popup);
+  radius: 6,
+  color: info.color,
+  fillColor: info.color,
+  fillOpacity: info.color === "#161618" ? 0.2 : 0.85,
+  opacity: info.color === "#161618" ? 0.2 : 1
+});
 
 
    // Tooltip nama stasiun
